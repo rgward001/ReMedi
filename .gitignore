@@ -1,0 +1,9 @@
+.gradle/
+build/
+captures/
+*.log
+*.iml
+.idea/
+*.jks
+*.keystore
+google-services.json
