@@ -10,7 +10,11 @@
         android:icon="@drawable/add_prescription"/>
     <item
         android:id="@+id/view_database"
-        android:title="View/Edit Database"
+        android:title="Database"
         android:icon="@drawable/view_edit_database"/>
+    <item
+        android:id="@+id/view_account"
+        android:title="Account"
+        android:icon="@drawable/account_button"/>
 
 </menu>
