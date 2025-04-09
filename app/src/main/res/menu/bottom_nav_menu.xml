@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/home"
+        android:title="Home"
+        android:icon="@drawable/homepage_button"/>
+    <item
+        android:id="@+id/prescription"
+        android:title="Add Prescription"
+        android:icon="@drawable/add_prescription"/>
+    <item
+        android:id="@+id/view_database"
+        android:title="View/Edit Database"
+        android:icon="@drawable/view_edit_database"/>
+
+</menu>
