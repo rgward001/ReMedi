@@ -1,9 +1,17 @@
 package com.example.remedi
 
+import android.animation.ObjectAnimator
+import android.animation.PropertyValuesHolder
+import android.content.Intent
 import android.os.Bundle
+import android.widget.Button
+import android.widget.ImageButton
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import android.util.Log
+import android.view.View
+import android.view.animation.OvershootInterpolator
 
 class HomeActivity : AppCompatActivity() {
 
@@ -18,6 +26,8 @@ class HomeActivity : AppCompatActivity() {
         val thirdFragment = ThirdFragment()
         val fourthFragment = FourthFragment()
 
+        val cameraButton = findViewById<ImageButton>(R.id.camera);
+
         setCurrentFragment(firstFragment)
 
         bottomNavigationView.setOnNavigationItemSelectedListener {
@@ -29,6 +39,21 @@ class HomeActivity : AppCompatActivity() {
 
             }
             true
+        }
+
+        val animator = ObjectAnimator.ofPropertyValuesHolder(
+            cameraButton,
+            PropertyValuesHolder.ofFloat(View.SCALE_X, 1f, 0.85f, 1f),
+            PropertyValuesHolder.ofFloat(View.SCALE_Y, 1f, 0.85f, 1f)
+        ).apply {
+            duration = 150
+            interpolator = OvershootInterpolator()
+        }
+
+        cameraButton.setOnClickListener {
+            animator.start()
+            startActivity(Intent(this, CameraActivity::class.java))
+            finish()
         }
 
     }
