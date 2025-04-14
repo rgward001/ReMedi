@@ -28,6 +28,7 @@
         </activity>
         <activity android:name=".HomeActivity" />
         <activity android:name=".CameraActivity" />
+        <activity android:name=".RegisterActivity" />
     </application>
 
 </manifest>

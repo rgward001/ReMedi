@@ -36,6 +36,15 @@ class MainActivity : AppCompatActivity() {
         firebaseAuth = Firebase.auth;
 
         val loginButton = findViewById<Button>(R.id.login_button);
+        val registerButton = findViewById<Button>(R.id.register_button);
+
+        registerButton.setOnClickListener {
+
+            val intent = Intent(this, RegisterActivity::class.java)
+            startActivity(intent)
+            finish()
+
+        }
 
         loginButton.setOnClickListener{
             val emailEditText = findViewById<EditText>(R.id.email_edit_text);
