@@ -3,12 +3,14 @@ package com.example.remedi
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.remedi.Prescription
 import java.text.SimpleDateFormat
 import java.util.*
 import com.google.firebase.Timestamp
+import com.google.firebase.firestore.FirebaseFirestore
 
 class PrescriptionAdapter(private val prescriptions: List<Prescription>) :
     RecyclerView.Adapter<PrescriptionAdapter.PrescriptionViewHolder>() {
@@ -20,6 +22,8 @@ class PrescriptionAdapter(private val prescriptions: List<Prescription>) :
         val frequency: TextView = itemView.findViewById(R.id.frequency)
         val prescribingDoctor: TextView = itemView.findViewById(R.id.doctor)
         val notes: TextView = itemView.findViewById(R.id.notes)
+        val btnDelete: Button = itemView.findViewById(R.id.btnDelete)
+        val btnEdit: Button = itemView.findViewById(R.id.btnEdit)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PrescriptionViewHolder {
@@ -41,6 +45,14 @@ class PrescriptionAdapter(private val prescriptions: List<Prescription>) :
         val start = formatTimestamp(prescription.startDate)
         val end = formatTimestamp(prescription.endDate)
         holder.dates.text = "$start - $end"
+
+        holder.btnDelete.setOnClickListener{
+
+        }
+
+        holder.btnEdit.setOnClickListener{
+
+        }
     }
 
     override fun getItemCount(): Int = prescriptions.size

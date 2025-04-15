@@ -1,15 +1,129 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/prescriptionForm"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".FirstFragment">
+    android:padding="16dp">
 
-    <!-- TODO: Update blank fragment layout -->
+    <!-- Title -->
     <TextView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:id="@+id/formTitle"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Add Prescription"
+        android:textSize="24sp"
+        android:textStyle="bold"
         android:gravity="center"
-        android:text="Add Prescription" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- Name -->
+    <EditText
+        android:id="@+id/prescriptionName"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:hint="Prescription Name"
+        app:layout_constraintTop_toBottomOf="@id/formTitle"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="16dp" />
+
+    <!-- Dosage -->
+    <EditText
+        android:id="@+id/dosage"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:hint="Dosage (e.g., 500 mg)"
+        app:layout_constraintTop_toBottomOf="@id/prescriptionName"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="8dp" />
+
+    <!-- Frequency -->
+    <EditText
+        android:id="@+id/frequency"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:hint="Frequency (e.g., twice a day)"
+        app:layout_constraintTop_toBottomOf="@id/dosage"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="8dp" />
+
+    <!-- Start Date -->
+    <EditText
+        android:id="@+id/startDate"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:hint="Start Date"
+        android:focusable="false"
+        android:clickable="true"
+        android:inputType="none"
+        app:layout_constraintTop_toBottomOf="@id/frequency"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="8dp" />
+
+    <!-- End Date -->
+    <EditText
+        android:id="@+id/endDate"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:hint="End Date"
+        android:focusable="false"
+        android:clickable="true"
+        android:inputType="none"
+        app:layout_constraintTop_toBottomOf="@id/startDate"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="8dp" />
+
+    <!-- Prescribing Doctor -->
+    <EditText
+        android:id="@+id/prescribingDoctor"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:hint="Prescribing Doctor"
+        app:layout_constraintTop_toBottomOf="@id/endDate"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="8dp" />
+
+    <!-- Notes -->
+    <EditText
+        android:id="@+id/notes"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:hint="Notes"
+        android:inputType="textMultiLine"
+        android:minLines="3"
+        app:layout_constraintTop_toBottomOf="@id/prescribingDoctor"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="8dp" />
+
+    <!-- Is Active -->
+    <CheckBox
+        android:id="@+id/isActiveCheckbox"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Is Active"
+        app:layout_constraintTop_toBottomOf="@id/notes"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginTop="8dp" />
+
+    <!-- Save Button -->
+    <Button
+        android:id="@+id/saveButton"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:backgroundTint="@android:color/system_accent1_800"
+        android:text="Save Prescription"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/isActiveCheckbox" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
