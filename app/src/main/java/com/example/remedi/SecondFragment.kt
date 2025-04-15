@@ -71,6 +71,14 @@ class SecondFragment : Fragment() {
                 .add(prescription)
                 .addOnSuccessListener {
                     Toast.makeText(requireContext(), "Prescription saved", Toast.LENGTH_SHORT).show()
+                    name.setText("")
+                    dosage.setText("")
+                    frequency.setText("")
+                    startDate.setText("")
+                    endDate.setText("")
+                    doctor.setText("")
+                    notes.setText("")
+                    isActive.setChecked(false)
                 }
                 .addOnFailureListener {
                     Toast.makeText(requireContext(), "Error saving", Toast.LENGTH_SHORT).show()
