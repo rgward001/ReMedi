@@ -3,12 +3,15 @@ package com.example.remedi
 import com.google.firebase.Timestamp
 
 data class Prescription(
-    val dosage: String? = null,
-    val endDate: Timestamp? = null,
-    val frequency: String? = null,
-    val isActive: Boolean = false,
-    val name: String? = null,
-    val notes: String? = null,
-    val prescribingDoctor: String? = null,
-    val startDate: Timestamp? = null
+    var id: String? = null,
+    var name: String? = null,
+    var dosage: String? = null,
+    var frequency: String? = null,
+    var startDate: Timestamp? = null,
+    var endDate: Timestamp? = null,
+    var prescribingDoctor: String? = null,
+    var notes: String? = null,
+    var isActive: Boolean = true
+
 )
+

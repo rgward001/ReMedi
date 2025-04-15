@@ -6,14 +6,15 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
-import com.example.remedi.Prescription
-import java.text.SimpleDateFormat
-import java.util.*
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.FirebaseFirestore
+import java.text.SimpleDateFormat
+import java.util.*
 
-class PrescriptionAdapter(private val prescriptions: List<Prescription>) :
-    RecyclerView.Adapter<PrescriptionAdapter.PrescriptionViewHolder>() {
+class PrescriptionAdapter(
+    private val prescriptions: MutableList<Prescription>,  // MutableList to allow updates
+    private val userId: String
+) : RecyclerView.Adapter<PrescriptionAdapter.PrescriptionViewHolder>() {
 
     inner class PrescriptionViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val name: TextView = itemView.findViewById(R.id.prescriptionName)
@@ -37,21 +38,37 @@ class PrescriptionAdapter(private val prescriptions: List<Prescription>) :
 
         holder.name.text = prescription.name ?: "Unnamed"
         holder.dosage.text = prescription.dosage ?: "No dosage info"
-        holder.frequency.text = prescription.frequency?: "No frequency info"
-        holder.prescribingDoctor.text = prescription.prescribingDoctor?: "No prescribing doctor info"
-        holder.notes.text = prescription.notes?: "No notes"
-
+        holder.frequency.text = prescription.frequency ?: "No frequency info"
+        holder.prescribingDoctor.text = prescription.prescribingDoctor ?: "No prescribing doctor info"
+        holder.notes.text = prescription.notes ?: "No notes"
 
         val start = formatTimestamp(prescription.startDate)
         val end = formatTimestamp(prescription.endDate)
         holder.dates.text = "$start - $end"
 
-        holder.btnDelete.setOnClickListener{
-
+        holder.btnDelete.setOnClickListener {
+            val id = prescription.id
+            if (!id.isNullOrEmpty()) {
+                FirebaseFirestore.getInstance()
+                    .collection("users")
+                    .document(userId)
+                    .collection("prescriptions")
+                    .document(id)
+                    .delete()
+                    .addOnSuccessListener {
+                        // Remove the item from the list
+                        prescriptions.removeAt(position)
+                        // Notify the adapter that an item has been removed
+                        notifyItemRemoved(position)
+                    }
+                    .addOnFailureListener {
+                        // Optionally handle errors
+                    }
+            }
         }
 
-        holder.btnEdit.setOnClickListener{
-
+        holder.btnEdit.setOnClickListener {
+            // TODO: Implement edit functionality
         }
     }
 
@@ -63,3 +80,4 @@ class PrescriptionAdapter(private val prescriptions: List<Prescription>) :
         } ?: "Unknown"
     }
 }
+
