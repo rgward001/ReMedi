@@ -8,7 +8,6 @@ import androidx.camera.core.ImageCapture
 import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.content.ContextCompat
-import com.google.android.material.floatingactionbutton.FloatingActionButton
 import androidx.camera.view.PreviewView
 import java.io.File
 import androidx.camera.core.ImageCaptureException
@@ -17,6 +16,11 @@ import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.widget.ImageButton
+import android.net.Uri
+import com.google.mlkit.vision.common.InputImage
+import com.google.mlkit.vision.text.TextRecognition
+import com.google.mlkit.vision.text.latin.TextRecognizerOptions
+
 
 class CameraActivity : AppCompatActivity() {
 
@@ -88,6 +92,23 @@ class CameraActivity : AppCompatActivity() {
             object : ImageCapture.OnImageSavedCallback {
                 override fun onImageSaved(output: ImageCapture.OutputFileResults) {
                     Toast.makeText(this@CameraActivity, "Photo saved: ${photoFile.absolutePath}", Toast.LENGTH_SHORT).show()
+
+                    val image = InputImage.fromFilePath(this@CameraActivity, Uri.fromFile(photoFile))
+
+                    val recognizer = TextRecognition.getClient(TextRecognizerOptions.Builder().build())
+
+                    recognizer.process(image)
+                        .addOnSuccessListener { visionText ->
+                            val recognizedText = visionText.text
+                            // Handle recognized text: Pass it to another activity or autofill form
+                            val intent = Intent(this@CameraActivity, PrescriptionFormActivity::class.java)
+                            intent.putExtra("recognizedText", recognizedText)
+                            startActivity(intent)
+                            finish()
+                        }
+                        .addOnFailureListener { e ->
+                            Toast.makeText(this@CameraActivity, "OCR failed: ${e.message}", Toast.LENGTH_SHORT).show()
+                        }
                 }
 
                 override fun onError(exc: ImageCaptureException) {

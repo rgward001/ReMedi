@@ -29,6 +29,7 @@
         <activity android:name=".HomeActivity" />
         <activity android:name=".CameraActivity" />
         <activity android:name=".RegisterActivity" />
+        <activity android:name=".PrescriptionFormActivity" />
     </application>
 
 </manifest>
