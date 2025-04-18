@@ -68,8 +68,14 @@ class PrescriptionAdapter(
         }
 
         holder.btnEdit.setOnClickListener {
-            // TODO: Implement edit functionality
+            val fragmentManager = (holder.itemView.context as? androidx.fragment.app.FragmentActivity)?.supportFragmentManager
+            fragmentManager?.let {
+                EditPrescriptionDialogFragment(userId, prescription) {
+                    notifyItemChanged(position)
+                }.show(it, "EditPrescriptionDialog")
+            }
         }
+
     }
 
     override fun getItemCount(): Int = prescriptions.size
