@@ -1,49 +1,83 @@
 package com.example.remedi
 
+import android.app.Activity
+import android.content.Intent
+import android.graphics.BitmapFactory
+import android.net.Uri
 import android.os.Bundle
+import android.provider.MediaStore
 import android.widget.Button
 import android.widget.EditText
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import com.google.mlkit.vision.common.InputImage
+import com.google.mlkit.vision.text.TextRecognition
+import com.google.mlkit.vision.text.latin.TextRecognizerOptions
+import java.io.InputStream
 
 class PrescriptionFormActivity : AppCompatActivity() {
+
+    private lateinit var nameField: EditText
+    private lateinit var dosageField: EditText
+    private lateinit var frequencyField: EditText
+    private lateinit var startDateField: EditText
+    private lateinit var endDateField: EditText
+    private lateinit var doctorField: EditText
+    private lateinit var notesField: EditText
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_prescription_form)
 
-        // Get recognized text from CameraActivity
-        val recognizedText = intent.getStringExtra("recognizedText") ?: ""
+        nameField = findViewById(R.id.prescription_name)
+        dosageField = findViewById(R.id.dosage)
+        frequencyField = findViewById(R.id.frequency)
+        startDateField = findViewById(R.id.etStartDate)
+        endDateField = findViewById(R.id.etEndDate)
+        doctorField = findViewById(R.id.doctor)
+        notesField = findViewById(R.id.notes)
 
-        val editTextName = findViewById<EditText>(R.id.editTextMedicineName)
-        val editTextDosage = findViewById<EditText>(R.id.editTextDosage)
-        val editTextFrequency = findViewById<EditText>(R.id.editTextFrequency)
-        val btnSave = findViewById<Button>(R.id.btnSave)
-
-        // Naive parsing: assumes first 3 lines of OCR match name, dosage, frequency
-        val lines = recognizedText.split("\n").map { it.trim() }.filter { it.isNotEmpty() }
-        if (lines.size >= 3) {
-            editTextName.setText(lines[0])
-            editTextDosage.setText(lines[1])
-            editTextFrequency.setText(lines[2])
-        } else {
-            editTextName.setText(lines.getOrNull(0) ?: "")
-            editTextDosage.setText(lines.getOrNull(1) ?: "")
-            editTextFrequency.setText(lines.getOrNull(2) ?: "")
+        val saveButton: Button = findViewById(R.id.btnSave)
+        saveButton.setOnClickListener {
+            // Save logic here (e.g., upload to Firestore)
         }
 
-        btnSave.setOnClickListener {
-            val name = editTextName.text.toString()
-            val dosage = editTextDosage.text.toString()
-            val frequency = editTextFrequency.text.toString()
+        val imageUri = intent.getParcelableExtra<Uri>("imageUri")
+        if (imageUri != null) {
+            processImageFromUri(imageUri)
+        }
+    }
 
-            // TODO: Save this data to Firestore or your local DB
-            // For now, just show a confirmation
-            Toast.makeText(this, "Saved: $name, $dosage, $frequency", Toast.LENGTH_SHORT).show()
+    private fun processImageFromUri(uri: Uri) {
+        try {
+            val inputStream: InputStream? = contentResolver.openInputStream(uri)
+            val bitmap = BitmapFactory.decodeStream(inputStream)
+            val image = InputImage.fromBitmap(bitmap, 0)
 
-            // Return to previous screen (or wherever you want)
-            finish()
+            val recognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)
+            recognizer.process(image)
+                .addOnSuccessListener { visionText ->
+                    val text = visionText.text
+                    autoFillForm(text)
+                }
+                .addOnFailureListener {
+                    it.printStackTrace()
+                }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+
+    private fun autoFillForm(text: String) {
+        val lines = text.lines().map { it.trim() }.filter { it.isNotEmpty() }
+        lines.forEach { line ->
+            when {
+                line.contains("name", true) || line.contains("prescription", true) -> nameField.setText(line)
+                line.contains("mg", true) || line.contains("dosage", true) -> dosageField.setText(line)
+                line.contains("daily", true) || line.contains("times", true) -> frequencyField.setText(line)
+                line.contains("start", true) -> startDateField.setText(line)
+                line.contains("end", true) -> endDateField.setText(line)
+                line.contains("dr", true) || line.contains("doctor", true) -> doctorField.setText(line)
+            }
         }
     }
 }
-    

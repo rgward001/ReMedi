@@ -1,32 +1,92 @@
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
-    android:padding="16dp"
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/prescription_form_layout"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:padding="16dp">
 
     <EditText
-        android:id="@+id/editTextMedicineName"
-        android:hint="Medicine Name"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
+        android:id="@+id/etPrescriptionName"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:hint="Prescription Name"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="16dp" />
 
     <EditText
-        android:id="@+id/editTextDosage"
+        android:id="@+id/etDosage"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
         android:hint="Dosage"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
+        app:layout_constraintTop_toBottomOf="@id/etPrescriptionName"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="16dp" />
 
     <EditText
-        android:id="@+id/editTextFrequency"
-        android:hint="Times per day"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
+        android:id="@+id/etFrequency"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:hint="Frequency"
+        app:layout_constraintTop_toBottomOf="@id/etDosage"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="16dp" />
+
+    <EditText
+        android:id="@+id/etStartDate"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:hint="Start Date"
+        app:layout_constraintTop_toBottomOf="@id/etFrequency"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="16dp" />
+
+    <EditText
+        android:id="@+id/etEndDate"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:hint="End Date"
+        app:layout_constraintTop_toBottomOf="@id/etStartDate"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="16dp" />
+
+    <EditText
+        android:id="@+id/etDoctor"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:hint="Prescribing Doctor"
+        app:layout_constraintTop_toBottomOf="@id/etEndDate"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="16dp" />
+
+    <EditText
+        android:id="@+id/etNotes"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:hint="Notes"
+        android:minHeight="100dp"
+        android:gravity="top"
+        app:layout_constraintTop_toBottomOf="@id/etDoctor"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="16dp" />
 
     <Button
         android:id="@+id/btnSave"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
         android:backgroundTint="@android:color/system_accent1_800"
-        android:text="Save" />
-</LinearLayout>
+        android:text="Save"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/etNotes" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
