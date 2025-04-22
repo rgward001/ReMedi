@@ -1,14 +1,19 @@
 package com.example.remedi
 
-import android.app.Activity
 import android.content.Intent
-import android.graphics.BitmapFactory
-import android.net.Uri
 import android.os.Bundle
-import android.provider.MediaStore
 import android.widget.Button
 import android.widget.EditText
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import com.google.firebase.Timestamp
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.auth.FirebaseAuth
+import java.text.SimpleDateFormat
+import java.util.*
+import android.graphics.BitmapFactory
+import android.net.Uri
+import android.util.Log
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.text.TextRecognition
 import com.google.mlkit.vision.text.latin.TextRecognizerOptions
@@ -24,26 +29,85 @@ class PrescriptionFormActivity : AppCompatActivity() {
     private lateinit var doctorField: EditText
     private lateinit var notesField: EditText
 
+    private val db = FirebaseFirestore.getInstance()
+    private val auth = FirebaseAuth.getInstance()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_prescription_form)
 
-        nameField = findViewById(R.id.prescription_name)
-        dosageField = findViewById(R.id.dosage)
-        frequencyField = findViewById(R.id.frequency)
+        nameField = findViewById(R.id.etPrescriptionName)
+        dosageField = findViewById(R.id.etDosage)
+        frequencyField = findViewById(R.id.etFrequency)
         startDateField = findViewById(R.id.etStartDate)
         endDateField = findViewById(R.id.etEndDate)
-        doctorField = findViewById(R.id.doctor)
-        notesField = findViewById(R.id.notes)
+        doctorField = findViewById(R.id.etDoctor)
+        notesField = findViewById(R.id.etNotes)
 
         val saveButton: Button = findViewById(R.id.btnSave)
         saveButton.setOnClickListener {
-            // Save logic here (e.g., upload to Firestore)
+            savePrescriptionData()
         }
 
-        val imageUri = intent.getParcelableExtra<Uri>("imageUri")
-        if (imageUri != null) {
-            processImageFromUri(imageUri)
+        // Get the URI of the image from the Intent
+        val imageUriString = intent.getStringExtra("imageUri") // Retrieve the URI as a string
+        if (imageUriString != null) {
+            val imageUri = Uri.parse(imageUriString) // Convert the string back to Uri
+            processImageFromUri(imageUri)  // Process the image using the URI
+        }
+    }
+
+    private fun savePrescriptionData() {
+        // Retrieve data from form fields
+        val prescriptionName = nameField.text.toString().trim()
+        val dosage = dosageField.text.toString().trim()
+        val frequency = frequencyField.text.toString().trim()
+        val startDate = startDateField.text.toString().trim()
+        val endDate = endDateField.text.toString().trim()
+        val doctor = doctorField.text.toString().trim()
+        val notes = notesField.text.toString().trim()
+
+        // Convert startDate and endDate to Timestamp if valid
+        val startTimestamp = convertToTimestamp(startDate)
+        val endTimestamp = convertToTimestamp(endDate)
+
+        // Get the current user's UID (or use any identifier you'd like)
+        val userId = auth.currentUser?.uid ?: "anonymous_user"
+
+        // Create a Prescription object
+        val prescription = Prescription(
+            name = prescriptionName,
+            dosage = dosage,
+            frequency = frequency,
+            startDate = startTimestamp,
+            endDate = endTimestamp,
+            prescribingDoctor = doctor,
+            notes = notes,
+            isActive = true
+        )
+
+        // Save the Prescription data to Firestore
+        db.collection("users")
+            .document(userId)
+            .collection("prescriptions")
+            .add(prescription)
+            .addOnSuccessListener {
+                Toast.makeText(this, "Prescription saved successfully!", Toast.LENGTH_SHORT).show()
+                startActivity(Intent(this, HomeActivity::class.java))
+                finish()
+            }
+            .addOnFailureListener { e ->
+                Toast.makeText(this, "Error saving prescription: ${e.message}", Toast.LENGTH_SHORT).show()
+            }
+    }
+
+    private fun convertToTimestamp(dateString: String): Timestamp? {
+        val dateFormat = SimpleDateFormat("MM/dd/yyyy", Locale.getDefault())
+        return try {
+            val date = dateFormat.parse(dateString)
+            date?.let { Timestamp(date) }
+        } catch (e: Exception) {
+            null
         }
     }
 
@@ -56,6 +120,7 @@ class PrescriptionFormActivity : AppCompatActivity() {
             val recognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)
             recognizer.process(image)
                 .addOnSuccessListener { visionText ->
+                    Log.d("OCR", "Detected text: ${visionText.text}")
                     val text = visionText.text
                     autoFillForm(text)
                 }

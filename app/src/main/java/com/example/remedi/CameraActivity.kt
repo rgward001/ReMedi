@@ -93,22 +93,14 @@ class CameraActivity : AppCompatActivity() {
                 override fun onImageSaved(output: ImageCapture.OutputFileResults) {
                     Toast.makeText(this@CameraActivity, "Photo saved: ${photoFile.absolutePath}", Toast.LENGTH_SHORT).show()
 
-                    val image = InputImage.fromFilePath(this@CameraActivity, Uri.fromFile(photoFile))
+                    // Pass the URI of the photo to the next activity
+                    val imageUri = Uri.fromFile(photoFile)
 
-                    val recognizer = TextRecognition.getClient(TextRecognizerOptions.Builder().build())
-
-                    recognizer.process(image)
-                        .addOnSuccessListener { visionText ->
-                            val recognizedText = visionText.text
-                            // Handle recognized text: Pass it to another activity or autofill form
-                            val intent = Intent(this@CameraActivity, PrescriptionFormActivity::class.java)
-                            intent.putExtra("recognizedText", recognizedText)
-                            startActivity(intent)
-                            finish()
-                        }
-                        .addOnFailureListener { e ->
-                            Toast.makeText(this@CameraActivity, "OCR failed: ${e.message}", Toast.LENGTH_SHORT).show()
-                        }
+                    // Pass the URI to PrescriptionFormActivity
+                    val intent = Intent(this@CameraActivity, PrescriptionFormActivity::class.java)
+                    intent.putExtra("imageUri", imageUri.toString())  // Pass URI as string
+                    startActivity(intent)
+                    finish()
                 }
 
                 override fun onError(exc: ImageCaptureException) {
