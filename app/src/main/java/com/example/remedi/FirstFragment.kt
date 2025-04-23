@@ -61,10 +61,11 @@ class FirstFragment : Fragment() {
                     val frequency = document.getString("frequency") ?: "Once"
                     val prescriptionId = document.id
 
-                    val times = when (frequency.lowercase()) {
-                        "once" -> listOf("8:00 AM")
-                        "twice" -> listOf("8:00 AM", "8:00 PM")
-                        "three times" -> listOf("8:00 AM", "1:00 PM", "8:00 PM")
+                    val lowerFreq =  frequency.lowercase()
+                    val times = when {
+                        lowerFreq.contains("once") -> listOf("8:00 AM")
+                        lowerFreq.contains("twice") -> listOf("8:00 AM", "8:00 PM")
+                        lowerFreq.contains("three times") -> listOf("8:00 AM", "1:00 PM", "8:00 PM")
                         else -> listOf("8:00 AM")
                     }
 
