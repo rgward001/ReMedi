@@ -49,16 +49,14 @@ class PrescriptionFormActivity : AppCompatActivity() {
             savePrescriptionData()
         }
 
-        // Get the URI of the image from the Intent
-        val imageUriString = intent.getStringExtra("imageUri") // Retrieve the URI as a string
+        val imageUriString = intent.getStringExtra("imageUri")
         if (imageUriString != null) {
-            val imageUri = Uri.parse(imageUriString) // Convert the string back to Uri
-            processImageFromUri(imageUri)  // Process the image using the URI
+            val imageUri = Uri.parse(imageUriString)
+            processImageFromUri(imageUri)
         }
     }
 
     private fun savePrescriptionData() {
-        // Retrieve data from form fields
         val prescriptionName = nameField.text.toString().trim()
         val dosage = dosageField.text.toString().trim()
         val frequency = frequencyField.text.toString().trim()
@@ -67,14 +65,10 @@ class PrescriptionFormActivity : AppCompatActivity() {
         val doctor = doctorField.text.toString().trim()
         val notes = notesField.text.toString().trim()
 
-        // Convert startDate and endDate to Timestamp if valid
         val startTimestamp = convertToTimestamp(startDate)
         val endTimestamp = convertToTimestamp(endDate)
-
-        // Get the current user's UID (or use any identifier you'd like)
         val userId = auth.currentUser?.uid ?: "anonymous_user"
 
-        // Create a Prescription object
         val prescription = Prescription(
             name = prescriptionName,
             dosage = dosage,
@@ -86,7 +80,6 @@ class PrescriptionFormActivity : AppCompatActivity() {
             isActive = true
         )
 
-        // Save the Prescription data to Firestore
         db.collection("users")
             .document(userId)
             .collection("prescriptions")
@@ -132,17 +125,56 @@ class PrescriptionFormActivity : AppCompatActivity() {
         }
     }
 
+    private fun loadPrescriptionList(): List<String> {
+        return assets.open("prescriptions.txt").bufferedReader().useLines { lines ->
+            lines.map { it.trim() }.filter { it.isNotEmpty() }.toList()
+        }
+    }
+
     private fun autoFillForm(text: String) {
         val lines = text.lines().map { it.trim() }.filter { it.isNotEmpty() }
-        lines.forEach { line ->
-            when {
-                line.contains("name", true) || line.contains("prescription", true) -> nameField.setText(line)
-                line.contains("mg", true) || line.contains("dosage", true) -> dosageField.setText(line)
-                line.contains("daily", true) || line.contains("times", true) -> frequencyField.setText(line)
-                line.contains("start", true) -> startDateField.setText(line)
-                line.contains("end", true) -> endDateField.setText(line)
-                line.contains("dr", true) || line.contains("doctor", true) -> doctorField.setText(line)
+        val knownPrescriptions = loadPrescriptionList()
+
+        var name: String? = null
+        var dosage: String? = null
+        var frequency: String? = null
+        var startDate: String? = null
+        var endDate: String? = null
+        var doctor: String? = null
+
+        val dateRegex = Regex("""\b(0?[1-9]|1[0-2])[-/](0?[1-9]|[12][0-9]|3[01])[-/](\d{2,4})\b""")
+        val dosageRegex = Regex("""\b\d+\s?(mg|ml|mcg|g)\b""", RegexOption.IGNORE_CASE)
+        val frequencyRegex = Regex("""\b(\d+)\s?(x|times|per)?\s?(day|daily)\b""", RegexOption.IGNORE_CASE)
+        val doctorRegex = Regex("""(Dr\.?\s?[A-Za-z]+)""", RegexOption.IGNORE_CASE)
+
+        for (line in lines) {
+            if (name == null) {
+                for (prescription in knownPrescriptions) {
+                    if (line.contains(prescription, ignoreCase = true)) {
+                        name = prescription
+                        break
+                    }
+                }
+            }
+
+            if (dosage == null && dosageRegex.containsMatchIn(line)) dosage = dosageRegex.find(line)?.value
+            if (frequency == null && frequencyRegex.containsMatchIn(line)) frequency = frequencyRegex.find(line)?.value
+            if (doctor == null && doctorRegex.containsMatchIn(line)) doctor = doctorRegex.find(line)?.value
+
+            if (startDate == null && line.lowercase().contains("start") && dateRegex.containsMatchIn(line)) {
+                startDate = dateRegex.find(line)?.value
+            }
+
+            if (endDate == null && line.lowercase().contains("end") && dateRegex.containsMatchIn(line)) {
+                endDate = dateRegex.find(line)?.value
             }
         }
+
+        nameField.setText(name)
+        dosageField.setText(dosage)
+        frequencyField.setText(frequency)
+        startDateField.setText(startDate)
+        endDateField.setText(endDate)
+        doctorField.setText(doctor)
     }
 }
