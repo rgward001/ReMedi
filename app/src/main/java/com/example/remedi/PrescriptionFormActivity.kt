@@ -144,7 +144,7 @@ class PrescriptionFormActivity : AppCompatActivity() {
 
         val dateRegex = Regex("""\b(0?[1-9]|1[0-2])[-/](0?[1-9]|[12][0-9]|3[01])[-/](\d{2,4})\b""")
         val dosageRegex = Regex("""\b\d+\s?(mg|ml|mcg|g)\b""", RegexOption.IGNORE_CASE)
-        val frequencyRegex = Regex("""\b(\d+)\s?(x|times|per)?\s?(day|daily)\b""", RegexOption.IGNORE_CASE)
+        val frequencyRegex = Regex("""(?i)(take\s)?(one|two|three|four|five|\d+)\s(\w+\s)?(times|x)\s?(a|per)?\s?(day|daily)""")
         val doctorRegex = Regex("""(Dr\.?\s?[A-Za-z]+)""", RegexOption.IGNORE_CASE)
 
         for (line in lines) {
