@@ -11,6 +11,7 @@ import android.widget.Button
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 
+// Fragment for user account settings, including logout and delete account options
 class FourthFragment : Fragment() {
 
     private lateinit var auth: FirebaseAuth
@@ -20,14 +21,17 @@ class FourthFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+        // Inflate the layout and initialize Firebase instances
         val view = inflater.inflate(R.layout.fragment_fourth, container, false)
 
         auth = FirebaseAuth.getInstance()
         db = FirebaseFirestore.getInstance()
 
+        // Get references to logout and delete account buttons
         val logoutButton = view.findViewById<Button>(R.id.logout_button)
         val deleteButton = view.findViewById<Button>(R.id.delete_account_button)
 
+        // Logout: Confirm with user, sign out, then return to home screen
         logoutButton.setOnClickListener {
             showConfirmationDialog("Logout") {
                 auth.signOut()
@@ -35,15 +39,16 @@ class FourthFragment : Fragment() {
             }
         }
 
+        // Delete account: Confirm with user, delete Firestore data, then auth account
         deleteButton.setOnClickListener {
             showConfirmationDialog("Delete Account") {
                 val uid = auth.currentUser?.uid ?: return@showConfirmationDialog
 
-                // Step 1: Delete user document
+                // Step 1: Delete main user document from Firestore
                 db.collection("users").document(uid).delete().addOnSuccessListener {
-                    // Step 2: Delete subcollections
+                    // Step 2: Delete associated subcollections
                     deleteSubcollections(uid) {
-                        // Step 3: Delete auth user
+                        // Step 3: Delete the Firebase Auth user
                         auth.currentUser?.delete()?.addOnCompleteListener { task ->
                             if (task.isSuccessful) {
                                 goToHomeScreen()
@@ -61,6 +66,7 @@ class FourthFragment : Fragment() {
         return view
     }
 
+    // Shows a confirmation dialog before logout or deletion
     private fun showConfirmationDialog(action: String, onConfirm: () -> Unit) {
         AlertDialog.Builder(requireContext())
             .setTitle("$action Confirmation")
@@ -70,6 +76,7 @@ class FourthFragment : Fragment() {
             .show()
     }
 
+    // Navigates back to the main screen, clearing the activity stack
     private fun goToHomeScreen() {
         val intent = Intent(requireContext(), MainActivity::class.java)
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
@@ -77,6 +84,7 @@ class FourthFragment : Fragment() {
         requireActivity().finish()
     }
 
+    // Displays an error alert dialog with a given message
     private fun showError(message: String) {
         AlertDialog.Builder(requireContext())
             .setTitle("Error")
@@ -85,10 +93,12 @@ class FourthFragment : Fragment() {
             .show()
     }
 
+    // Deletes 'prescriptions' and 'takenDoses' subcollections for the user
     private fun deleteSubcollections(uid: String, onComplete: () -> Unit) {
         val prescriptionsRef = db.collection("users").document(uid).collection("prescriptions")
         val takenDosesRef = db.collection("users").document(uid).collection("takenDoses")
 
+        // Delete all prescription documents
         prescriptionsRef.get().addOnSuccessListener { snapshot ->
             val batch = db.batch()
             for (doc in snapshot) {
@@ -103,6 +113,7 @@ class FourthFragment : Fragment() {
             showError("Failed to access prescriptions.")
         }
 
+        // Delete all takenDose documents
         takenDosesRef.get().addOnSuccessListener { snapshot ->
             val batch = db.batch()
             for (doc in snapshot) {
@@ -118,3 +129,4 @@ class FourthFragment : Fragment() {
         }
     }
 }
+

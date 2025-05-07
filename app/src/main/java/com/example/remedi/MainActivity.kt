@@ -18,42 +18,48 @@ import com.google.firebase.auth.auth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 
+// MainActivity handles user login and navigation to registration or home screen
 class MainActivity : AppCompatActivity() {
     private lateinit var firebaseAuth : FirebaseAuth
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // Enable drawing behind system bars for modern UI
         enableEdgeToEdge()
         setContentView(R.layout.activity_login)
+
+        // Adjust view padding for system bars (status bar, navigation bar)
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
 
-        FirebaseApp.initializeApp(this);
+        // Initialize Firebase before using its services
+        FirebaseApp.initializeApp(this)
 
-        firebaseAuth = Firebase.auth;
+        firebaseAuth = Firebase.auth
 
-        val loginButton = findViewById<Button>(R.id.login_button);
-        val registerButton = findViewById<Button>(R.id.register_button);
+        // Initialize login and register button references
+        val loginButton = findViewById<Button>(R.id.login_button)
+        val registerButton = findViewById<Button>(R.id.register_button)
 
+        // Navigate to registration activity if user taps "Register"
         registerButton.setOnClickListener {
-
             val intent = Intent(this, RegisterActivity::class.java)
             startActivity(intent)
-
         }
 
-        loginButton.setOnClickListener{
-            val emailEditText = findViewById<EditText>(R.id.email_edit_text);
-            val passwordEditText = findViewById<EditText>(R.id.password_edit_text);
+        // Attempt login when user taps "Login"
+        loginButton.setOnClickListener {
+            val emailEditText = findViewById<EditText>(R.id.email_edit_text)
+            val passwordEditText = findViewById<EditText>(R.id.password_edit_text)
 
-            val email = emailEditText.text.toString();
-            val password = passwordEditText.text.toString();
+            val email = emailEditText.text.toString()
+            val password = passwordEditText.text.toString()
 
-            // check if email or password is empty
-
+            // Authenticate user using Firebase Auth
             firebaseAuth.signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this) { task ->
                     if (task.isSuccessful) {
@@ -64,10 +70,10 @@ class MainActivity : AppCompatActivity() {
                             Toast.LENGTH_SHORT
                         ).show()
 
-                        // Redirect to HomeActivity (which uses activity_main.xml)
+                        // Redirect to main app (HomeActivity)
                         val intent = Intent(this, HomeActivity::class.java)
                         startActivity(intent)
-                        finish() // optional: closes login activity so user can't go back to it
+                        finish() // Prevents user from returning to login screen via back button
                     } else {
                         Log.w("AUTH", "signInWithEmail:failure", task.exception)
                         Toast.makeText(
@@ -76,8 +82,7 @@ class MainActivity : AppCompatActivity() {
                             Toast.LENGTH_SHORT
                         ).show()
                     }
-
                 }
-        };
+        }
     }
 }

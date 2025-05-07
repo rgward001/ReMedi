@@ -12,12 +12,14 @@ import com.google.firebase.firestore.FirebaseFirestore
 import java.text.SimpleDateFormat
 import java.util.*
 
+// A DialogFragment that allows users to edit an existing prescription
 class EditPrescriptionDialogFragment(
     private val userId: String,
     private val prescription: Prescription,
     private val onUpdated: () -> Unit
 ) : DialogFragment() {
 
+    // Input fields and button
     private lateinit var nameInput: EditText
     private lateinit var dosageInput: EditText
     private lateinit var frequencyInput: EditText
@@ -28,8 +30,10 @@ class EditPrescriptionDialogFragment(
     private lateinit var activeCheckbox: CheckBox
     private lateinit var saveButton: Button
 
+    // Date formatter for parsing and displaying dates
     private val formatter = SimpleDateFormat("MM/dd/yyyy", Locale.getDefault())
 
+    // Optional interface for notifying listeners of updates (not used here directly)
     interface OnPrescriptionUpdatedListener {
         fun onPrescriptionUpdated(updatedPrescription: Prescription)
     }
@@ -37,6 +41,7 @@ class EditPrescriptionDialogFragment(
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         val view = inflater.inflate(R.layout.fragment_second, container, false)
 
+        // Initialize all input views
         nameInput = view.findViewById(R.id.prescriptionName)
         dosageInput = view.findViewById(R.id.dosage)
         frequencyInput = view.findViewById(R.id.frequency)
@@ -47,7 +52,7 @@ class EditPrescriptionDialogFragment(
         activeCheckbox = view.findViewById(R.id.isActiveCheckbox)
         saveButton = view.findViewById(R.id.saveButton)
 
-        // Pre-fill values
+        // Pre-fill the form with existing prescription data
         nameInput.setText(prescription.name)
         dosageInput.setText(prescription.dosage)
         frequencyInput.setText(prescription.frequency)
@@ -57,10 +62,11 @@ class EditPrescriptionDialogFragment(
         notesInput.setText(prescription.notes)
         activeCheckbox.isChecked = prescription.isActive
 
-        // Date pickers
+        // Add date pickers for start and end date inputs
         setupDatePicker(startDateInput)
         setupDatePicker(endDateInput)
 
+        // Save button click updates the prescription
         saveButton.setOnClickListener {
             updatePrescription()
         }
@@ -70,9 +76,11 @@ class EditPrescriptionDialogFragment(
 
     override fun onStart() {
         super.onStart()
+        // Set the dialog to use full width
         dialog?.window?.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
     }
 
+    // Helper function to show a DatePickerDialog when an EditText is clicked
     private fun setupDatePicker(field: EditText) {
         field.setOnClickListener {
             val calendar = Calendar.getInstance()
@@ -83,6 +91,7 @@ class EditPrescriptionDialogFragment(
         }
     }
 
+    // Push updated prescription data to Firestore
     private fun updatePrescription() {
         val updated = hashMapOf<String, Any>(
             "name" to nameInput.text.toString(),
@@ -96,6 +105,8 @@ class EditPrescriptionDialogFragment(
         )
 
         val docId = prescription.id ?: return
+
+        // Update the Firestore document with new values
         FirebaseFirestore.getInstance()
             .collection("users")
             .document(userId)
@@ -103,8 +114,8 @@ class EditPrescriptionDialogFragment(
             .document(docId)
             .update(updated)
             .addOnSuccessListener {
-                onUpdated()
-                dismiss()
+                onUpdated() // Notify parent or refresh UI
+                dismiss()   // Close the dialog
             }
             .addOnFailureListener {
                 Toast.makeText(requireContext(), "Update failed", Toast.LENGTH_SHORT).show()

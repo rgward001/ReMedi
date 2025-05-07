@@ -21,43 +21,44 @@ import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.text.TextRecognition
 import com.google.mlkit.vision.text.latin.TextRecognizerOptions
 
-
+// Activity to handle camera preview and photo capture
 class CameraActivity : AppCompatActivity() {
 
-    private lateinit var previewView: PreviewView
-    private lateinit var imageCapture: ImageCapture
-    private lateinit var outputDirectory: File
+    private lateinit var previewView: PreviewView // UI element to display camera preview
+    private lateinit var imageCapture: ImageCapture // Object to capture images
+    private lateinit var outputDirectory: File // Directory to save captured images
     private val cameraPermission = Manifest.permission.CAMERA
-    private val requestCode = 10
+    private val requestCode = 10 // Request code for permission handling
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_camera)
 
         previewView = findViewById(R.id.previewView)
-
         outputDirectory = getOutputDirectory()
 
-        // Check for camera permission
+        // Check if camera permission is granted
         if (ContextCompat.checkSelfPermission(this, cameraPermission) == PackageManager.PERMISSION_GRANTED) {
-            startCamera()
+            startCamera() // Start camera if permission granted
         } else {
+            // Request camera permission
             ActivityCompat.requestPermissions(this, arrayOf(cameraPermission), requestCode)
         }
 
         val captureButton: ImageButton = findViewById(R.id.capture_button)
         captureButton.setOnClickListener {
-            takePhoto()
+            takePhoto() // Capture photo on button click
         }
 
         val backButton = findViewById<ImageButton>(R.id.back_button)
-
-        backButton.setOnClickListener{
+        backButton.setOnClickListener {
+            // Navigate back to home activity
             startActivity(Intent(this, HomeActivity::class.java))
             finish()
         }
     }
 
+    // Starts the camera preview
     private fun startCamera() {
         val cameraProviderFuture = ProcessCameraProvider.getInstance(this)
 
@@ -70,20 +71,20 @@ class CameraActivity : AppCompatActivity() {
 
             imageCapture = ImageCapture.Builder().build()
 
-            val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
+            val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA // Use back camera
 
             try {
-                cameraProvider.unbindAll()
-                cameraProvider.bindToLifecycle(this, cameraSelector, preview, imageCapture)
+                cameraProvider.unbindAll() // Unbind any previously bound use cases
+                cameraProvider.bindToLifecycle(this, cameraSelector, preview, imageCapture) // Bind camera lifecycle
             } catch (exc: Exception) {
                 Toast.makeText(this, "Camera initialization failed: ${exc.message}", Toast.LENGTH_SHORT).show()
             }
         }, ContextCompat.getMainExecutor(this))
     }
 
+    // Captures a photo and sends its URI to the next activity
     private fun takePhoto() {
         val photoFile = File(outputDirectory, "IMG_${System.currentTimeMillis()}.jpg")
-
         val outputOptions = ImageCapture.OutputFileOptions.Builder(photoFile).build()
 
         imageCapture.takePicture(
@@ -93,12 +94,11 @@ class CameraActivity : AppCompatActivity() {
                 override fun onImageSaved(output: ImageCapture.OutputFileResults) {
                     Toast.makeText(this@CameraActivity, "Photo saved: ${photoFile.absolutePath}", Toast.LENGTH_SHORT).show()
 
-                    // Pass the URI of the photo to the next activity
-                    val imageUri = Uri.fromFile(photoFile)
+                    val imageUri = Uri.fromFile(photoFile) // Convert file to URI
 
-                    // Pass the URI to PrescriptionFormActivity
+                    // Launch PrescriptionFormActivity and pass image URI
                     val intent = Intent(this@CameraActivity, PrescriptionFormActivity::class.java)
-                    intent.putExtra("imageUri", imageUri.toString())  // Pass URI as string
+                    intent.putExtra("imageUri", imageUri.toString()) // Pass URI as string
                     startActivity(intent)
                     finish()
                 }
@@ -110,16 +110,18 @@ class CameraActivity : AppCompatActivity() {
         )
     }
 
+    // Returns the directory to store captured photos
     private fun getOutputDirectory(): File {
         val mediaDir = externalMediaDirs.firstOrNull()?.let {
-            File(it, "CameraApp").apply { mkdirs() }
+            File(it, "CameraApp").apply { mkdirs() } // Create subdirectory if it doesn't exist
         }
         return if (mediaDir != null && mediaDir.exists()) mediaDir else filesDir
     }
 
+    // Handles the result of the permission request
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         if (requestCode == this.requestCode && grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-            startCamera()
+            startCamera() // Permission granted, start camera
         } else {
             Toast.makeText(this, "Camera permission denied", Toast.LENGTH_SHORT).show()
         }

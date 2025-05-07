@@ -16,34 +16,38 @@ import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
 import com.google.firebase.firestore.firestore
 
+// HomeActivity manages the main UI with a bottom navigation bar and a camera button
 class HomeActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        // Initialize bottom navigation and fragments for each tab
         val bottomNavigationView: BottomNavigationView = findViewById(R.id.bottomNavigationView)
 
-        val firstFragment = FirstFragment()
-        val secondFragment = SecondFragment()
-        val thirdFragment = ThirdFragment()
-        val fourthFragment = FourthFragment()
+        val firstFragment = FirstFragment()     // Daily to-do list
+        val secondFragment = SecondFragment()   // Prescription manager
+        val thirdFragment = ThirdFragment()     // Firestore viewer/debugger
+        val fourthFragment = FourthFragment()   // Account settings
 
-        val cameraButton = findViewById<ImageButton>(R.id.camera);
+        val cameraButton = findViewById<ImageButton>(R.id.camera)
 
+        // Set the initial fragment to the home screen
         setCurrentFragment(firstFragment)
 
+        // Set up navigation bar listeners to switch between fragments
         bottomNavigationView.setOnNavigationItemSelectedListener {
             when (it.itemId) {
                 R.id.home -> setCurrentFragment(firstFragment)
                 R.id.prescription -> setCurrentFragment(secondFragment)
                 R.id.view_database -> setCurrentFragment(thirdFragment)
                 R.id.view_account -> setCurrentFragment(fourthFragment)
-
             }
             true
         }
 
+        // Set up animation for the floating camera button
         val animator = ObjectAnimator.ofPropertyValuesHolder(
             cameraButton,
             PropertyValuesHolder.ofFloat(View.SCALE_X, 1f, 0.85f, 1f),
@@ -53,18 +57,19 @@ class HomeActivity : AppCompatActivity() {
             interpolator = OvershootInterpolator()
         }
 
+        // Camera button launches CameraActivity and exits HomeActivity
         cameraButton.setOnClickListener {
             animator.start()
             startActivity(Intent(this, CameraActivity::class.java))
-            finish()
+            finish() // Assumes you want to prevent returning to HomeActivity from CameraActivity
         }
-
     }
 
+    // Helper method to replace the current fragment in the fragment container
     private fun setCurrentFragment(fragment: Fragment) =
         supportFragmentManager.beginTransaction().apply {
             replace(R.id.flFragment, fragment)
             commit()
         }
-
 }
+
